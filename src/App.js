@@ -35,6 +35,7 @@ class App extends Component {
       box: [{}],
       route: 'signIn',
       signedIn: false,
+      buttonLock: false,
       user: {
         id: '',
         name: '',
@@ -81,7 +82,7 @@ class App extends Component {
   }
 
   onInputChange = (event) =>{
-    this.setState({ input: event.target.value })
+    this.setState({ input: event.target.value, buttonLock: false });
   }
 
   onRouteChange = (route) =>{
@@ -94,10 +95,11 @@ class App extends Component {
   }
 
   onPictureSubmit = () =>{
+    if(!this.state.input.includes('http://') && !this.state.input.includes('https://'))return;
+    if(this.state.buttonLock)return;
     const { displayFaceBox, calcFaceLocation } = this;
     this.setState({ imageSource: this.state.input, box: [{}] });
 
-    if(!this.state.input.includes('http://') && !this.state.input.includes('https://'))return;
 
     fetch('https://serene-castle-90081.herokuapp.com/image', {
       method: 'post',
@@ -119,6 +121,7 @@ class App extends Component {
             .then(response => response.json())
             .then(count => {
               this.setState(Object.assign(this.state.user, { entries: count }))
+              this.setState({ buttonLock: true })
             })
             .catch(console.log)
         }
