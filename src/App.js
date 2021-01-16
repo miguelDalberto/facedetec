@@ -6,10 +6,9 @@ import Register from './components/Register/Register';
 import Navigation from './components/Navigation/Navigation';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
-import Rank from './components/Rank/Rank';
+import EntryCount from './components/EntryCount/EntryCount';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import particlesParams from './particlesjs-config.json';
-
 
 const initialState = {
   input: '',
@@ -17,6 +16,7 @@ const initialState = {
   box: [{}],
   route: 'signIn',
   signedIn: false,
+  buttonLock: false,
   user: {
     id: '',
     name: '',
@@ -35,7 +35,7 @@ class App extends Component {
       box: [{}],
       route: 'signIn',
       signedIn: false,
-      buttonLock: false,
+      buttonLock: false, //with the picture submit, this lock turns on. With the change of the input, this lock turns off.
       user: {
         id: '',
         name: '',
@@ -97,9 +97,8 @@ class App extends Component {
   onPictureSubmit = () =>{
     if(!this.state.input.includes('http://') && !this.state.input.includes('https://'))return;
     if(this.state.buttonLock)return;
+    this.setState({ imageSource: this.state.input, box: [{}], buttonLock: true });
     const { displayFaceBox, calcFaceLocation } = this;
-    this.setState({ imageSource: this.state.input, box: [{}] });
-
 
     fetch('https://serene-castle-90081.herokuapp.com/image', {
       method: 'post',
@@ -121,7 +120,6 @@ class App extends Component {
             .then(response => response.json())
             .then(count => {
               this.setState(Object.assign(this.state.user, { entries: count }))
-              this.setState({ buttonLock: true })
             })
             .catch(console.log)
         }
@@ -143,7 +141,7 @@ class App extends Component {
           route === 'home' ?
             <div>
               <Logo />
-              <Rank name={user.name} entries={user.entries} />
+              <EntryCount name={user.name} entries={user.entries} />
               <ImageLinkForm onInputChange={onInputChange} onSubmit={onPictureSubmit} />
               <FaceRecognition box={box} imageSource={imageSource} />
             </div>
